@@ -1,8 +1,12 @@
+# opening
+```
+This project was build as part of a SRE home assignment.
+while making it, i used claude (for simple coding), TiDB docs, kafkaJS docs, log4js docs and Confluent kafka Docker image.
+I made sure to understand every decision so i can explain it.
+thank you for the opportunity. i hope this project will satisfy you!
+
+```
 # SRE Home Test
-
-I built this project as part of an SRE home assignment. It was a good challenge — setting up the full TiDB cluster (PD, TiKV, TiDB) with Docker was new to me, and getting the CDC pipeline to work end to end, from a database write all the way to a structured log in the Kafka consumer, was the most interesting part. I used AI assistance during the process, mainly for debugging Docker healthcheck issues and wiring up the TiCDC changefeed configuration, but I made sure to understand every decision so I can explain it.
-
----
 
 Full-stack app with authentication, TiDB, Kafka, and CDC-based change monitoring.
 
@@ -21,9 +25,7 @@ Full-stack app with authentication, TiDB, Kafka, and CDC-based change monitoring
 docker compose up --build
 ```
 That's it.
-
 Once up, open http://localhost in your browser.
-
 Default user- username: `ilay` / password: `helfy`
 
 ## What happens on startup
@@ -47,10 +49,12 @@ Default user- username: `ilay` / password: `helfy`
 ```json
 {"timestamp":"...","service":"cdc-consumer","database":"sre_app","table":"tokens","type":"INSERT","data":[{...}]}
 ```
-example:
-
-To watch logs:
+## example:
+``` bash
+{"timestamp":"2026-06-15T10:49:26.127Z","service":"cdc-consumer","topic":"tidb-cdc","partition":2,"offset":"0","database":"sre_app","table":"tokens","type":"INSERT","isDdl":false,"data":[{"id":"1","user_id":"1","token":"986503f29bae8543d4378bafd7ce91f8cf12793406c49487ab08204c0d4961f8","expires_at":"2026-06-16 10:49:25","created_at":"2026-06-15 10:49:24"}],"old":null}
 ```
+## To watch logs:
+``` bash
 docker compose logs -f backend     # user activity logs
 docker compose logs -f consumer    # CDC change logs
 ```
@@ -66,3 +70,13 @@ sre-project/
 ├── consumer/        # Kafka consumer for CDC events
 └── docker-compose.yml
 ```
+## Technologies used (from the requirements)
+``` bash
+HTML - frontend/index.html
+Node.js with Express.js - backend/main-app-layout.js, backend/package.json
+TiDB - docker-compose.yml + db/connection.js
+Apache kafka - docker-compose.yml + consumer/consumer.js
+Socker & Compose - docker-compose.yml, backend/Dockerfile, frontend/Dockerfile, db/Dockerfile, cdc-init/Dockerfile, consumer/Dockerfile
+log4js - backend/logger.js, consumer/consumer.js
+```
+
