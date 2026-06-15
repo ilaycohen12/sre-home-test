@@ -71,11 +71,11 @@ sre-project/
 ```
 ## Technologies used (from the requirements)
 
-**HTML** - frontend/index.html
-**Node.js with Express.js** - backend/main-app-layout.js, backend/package.json
-**TiDB** - docker-compose.yml + db/connection.js
-**Apache kafka** - docker-compose.yml + consumer/consumer.js
-**Docker & Compose** - docker-compose.yml, backend/Dockerfile, frontend/Dockerfile, db/Dockerfile, cdc-init/Dockerfile, consumer/Dockerfile
-**log4js** - backend/logger.js, consumer/consumer.js
+- **HTML** - frontend/index.html
+- **Node.js with Express.js** - backend/main-app-layout.js, backend/package.json
+- **TiDB** - docker-compose.yml + db/connection.js
+- **Apache kafka** - docker-compose.yml + consumer/consumer.js
+- **Docker & Compose** - docker-compose.yml, backend/Dockerfile, frontend/Dockerfile, db/Dockerfile, cdc-init/Dockerfile, consumer/Dockerfile
+- **log4js** - backend/logger.js, consumer/consumer.js
 
 
