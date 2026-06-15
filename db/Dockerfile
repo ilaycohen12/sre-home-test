@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache mysql-client
+RUN apk add --no-cache mysql-client dos2unix
 
 WORKDIR /app
 
@@ -10,6 +10,6 @@ RUN npm install
 COPY init.sql .
 COPY seed.js .
 COPY init.sh .
-RUN chmod +x init.sh
+RUN dos2unix init.sh && chmod +x init.sh
 
 ENTRYPOINT ["sh", "init.sh"]
