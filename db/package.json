@@ -1,0 +1,8 @@
+{
+  "name": "sre-db-init",
+  "version": "1.0.0",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mysql2": "^3.6.0"
+  }
+}

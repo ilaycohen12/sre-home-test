@@ -111,6 +111,49 @@ services:
     networks:
       - sre-net
 
+  # ─── App Services ─────────────────────────────────────────────
+  db-init:
+    build: ./db
+    container_name: db-init
+    environment:
+      DB_HOST: tidb
+      DB_PORT: 4000
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: sre_app
+    depends_on:
+      tidb:
+        condition: service_healthy
+    networks:
+      - sre-net
+    restart: "no"
+
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      DB_HOST: tidb
+      DB_PORT: 4000
+      DB_USER: root
+      DB_PASSWORD: ""
+      DB_NAME: sre_app
+      PORT: 3000
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    networks:
+      - sre-net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - sre-net
+
 # ─── Volumes & Networks ───────────────────────────────────────
 volumes:
   pd-data:
