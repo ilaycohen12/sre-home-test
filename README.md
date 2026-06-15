@@ -13,15 +13,14 @@ Full-stack app with authentication, TiDB, Kafka, and CDC-based change monitoring
 
 ## How to run
 
-```
+``` bash
 docker compose up --build
 ```
-
-That's it. Everything starts automatically in the right order.
+That's it.
 
 Once up, open http://localhost in your browser.
 
-Default user: `admin` / `Admin123`
+Default user- username: `ilay` / password: `helfy`
 
 ## What happens on startup
 
@@ -44,6 +43,7 @@ Default user: `admin` / `Admin123`
 ```json
 {"timestamp":"...","service":"cdc-consumer","database":"sre_app","table":"tokens","type":"INSERT","data":[{...}]}
 ```
+example:
 
 To watch logs:
 ```
