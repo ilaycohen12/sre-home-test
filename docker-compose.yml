@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+
+  # ─── TiDB Stack ───────────────────────────────────────────────
+  pd:
+    image: pingcap/pd:v7.5.0
+    container_name: pd
+    ports:
+      - "2379:2379"
+    command:
+      - --name=pd
+      - --data-dir=/data/pd
+      - --client-urls=http://0.0.0.0:2379
+      - --advertise-client-urls=http://pd:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-peer-urls=http://pd:2380
+      - --log-level=warn
+    volumes:
+      - pd-data:/data/pd
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2379/pd/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    networks:
+      - sre-net
+
+  tikv:
+    image: pingcap/tikv:v7.5.0
+    container_name: tikv
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv:20160
+      - --data-dir=/data/tikv
+      - --pd=pd:2379
+      - --log-level=warn
+    volumes:
+      - tikv-data:/data/tikv
+    depends_on:
+      pd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:20180/metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - sre-net
+
+  tidb:
+    image: pingcap/tidb:v7.5.0
+    container_name: tidb
+    ports:
+      - "4000:4000"
+      - "10080:10080"
+    command:
+      - --store=tikv
+      - --path=pd:2379
+      - --advertise-address=tidb
+      - --log-level=warn
+    depends_on:
+      tikv:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10080/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - sre-net
+
+# ─── Volumes & Networks ───────────────────────────────────────
+volumes:
+  pd-data:
+  tikv-data:
+
+networks:
+  sre-net:
+    driver: bridge
