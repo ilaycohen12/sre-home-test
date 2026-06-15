@@ -1,12 +1,11 @@
 # opening
-```
+
 This project was build as part of a SRE home assignment.
 while making it, i used claude (for simple coding), TiDB docs, kafkaJS docs, log4js docs and Confluent kafka Docker image.
 I made sure to understand every decision so i can explain it.
 thank you for the opportunity. i hope this project will satisfy you!
 
-```
-# SRE Home Test
+## SRE Home Test
 
 Full-stack app with authentication, TiDB, Kafka, and CDC-based change monitoring.
 
@@ -71,12 +70,12 @@ sre-project/
 └── docker-compose.yml
 ```
 ## Technologies used (from the requirements)
-``` bash
-HTML - frontend/index.html
-Node.js with Express.js - backend/main-app-layout.js, backend/package.json
-TiDB - docker-compose.yml + db/connection.js
-Apache kafka - docker-compose.yml + consumer/consumer.js
-Socker & Compose - docker-compose.yml, backend/Dockerfile, frontend/Dockerfile, db/Dockerfile, cdc-init/Dockerfile, consumer/Dockerfile
-log4js - backend/logger.js, consumer/consumer.js
-```
+
+**HTML** - frontend/index.html
+**Node.js with Express.js** - backend/main-app-layout.js, backend/package.json
+**TiDB** - docker-compose.yml + db/connection.js
+**Apache kafka** - docker-compose.yml + consumer/consumer.js
+**Docker & Compose** - docker-compose.yml, backend/Dockerfile, frontend/Dockerfile, db/Dockerfile, cdc-init/Dockerfile, consumer/Dockerfile
+**log4js** - backend/logger.js, consumer/consumer.js
+
 

@@ -10,15 +10,15 @@ async function seed() {
     database: process.env.DB_NAME || 'sre_app',
   });
 
-  const passwordHash = await bcrypt.hash('Admin123', 10);
+  const passwordHash = await bcrypt.hash('helfy', 10);
 
   await connection.query(
     `INSERT IGNORE INTO users (username, email, password_hash)
-     VALUES ('admin', 'admin@example.com', ?)`,
+     VALUES ('ilay', 'ilay@example.com', ?)`,
     [passwordHash]
   );
 
-  console.log('Default user created: admin / Admin123');
+  console.log('Default user created: ilay / helfy');
   await connection.end();
 }
 
