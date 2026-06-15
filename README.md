@@ -1,5 +1,9 @@
 # SRE Home Test
 
+I built this project as part of an SRE home assignment. It was a good challenge — setting up the full TiDB cluster (PD, TiKV, TiDB) with Docker was new to me, and getting the CDC pipeline to work end to end, from a database write all the way to a structured log in the Kafka consumer, was the most interesting part. I used AI assistance during the process, mainly for debugging Docker healthcheck issues and wiring up the TiCDC changefeed configuration, but I made sure to understand every decision so I can explain it.
+
+---
+
 Full-stack app with authentication, TiDB, Kafka, and CDC-based change monitoring.
 
 ## Stack
