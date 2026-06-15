@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   # ─── TiDB Stack ───────────────────────────────────────────────
@@ -23,6 +21,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
+      start_period: 30s
     networks:
       - sre-net
 
@@ -42,9 +41,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:20180/metrics"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
     networks:
       - sre-net
 
@@ -58,16 +58,16 @@ services:
       - --store=tikv
       - --path=pd:2379
       - --advertise-address=tidb
-      - --log-level=warn
+      - -L=warn
     depends_on:
       tikv:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:10080/status"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
     networks:
       - sre-net
 
@@ -79,10 +79,11 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/2181' 2>/dev/null && echo ok || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 20s
     networks:
       - sre-net
 
@@ -110,6 +111,44 @@ services:
       start_period: 20s
     networks:
       - sre-net
+
+  # ─── CDC Stack ────────────────────────────────────────────────
+  ticdc:
+    image: pingcap/ticdc:v7.5.0
+    container_name: ticdc
+    entrypoint: ["/cdc"]
+    command:
+      - server
+      - --pd=http://pd:2379
+      - --addr=0.0.0.0:8300
+      - --advertise-addr=ticdc:8300
+      - --data-dir=/data/ticdc
+      - --log-level=warn
+    volumes:
+      - ticdc-data:/data/ticdc
+    depends_on:
+      tidb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8300/api/v1/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - sre-net
+
+  cdc-init:
+    build: ./cdc-init
+    container_name: cdc-init
+    depends_on:
+      ticdc:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - sre-net
+    restart: "no"
 
   # ─── App Services ─────────────────────────────────────────────
   db-init:
@@ -154,10 +193,25 @@ services:
     networks:
       - sre-net
 
+  consumer:
+    build: ./consumer
+    container_name: consumer
+    environment:
+      KAFKA_BROKER: kafka:29092
+      KAFKA_TOPIC: tidb-cdc
+    depends_on:
+      kafka:
+        condition: service_healthy
+      cdc-init:
+        condition: service_completed_successfully
+    networks:
+      - sre-net
+
 # ─── Volumes & Networks ───────────────────────────────────────
 volumes:
   pd-data:
   tikv-data:
+  ticdc-data:
 
 networks:
   sre-net:
