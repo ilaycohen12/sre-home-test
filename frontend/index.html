@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SRE App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f0f0; }
+    .card { background: white; padding: 2rem; border-radius: 6px; width: 320px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    h2 { margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.25rem; font-size: 0.9rem; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+    input.error { border-color: red; }
+    button { width: 100%; padding: 0.6rem; background: #333; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+    button:hover { background: #555; }
+    .msg { margin-top: 1rem; font-size: 0.9rem; }
+    .msg.error { color: red; }
+    .msg.success { color: green; }
+    #dashboard { display: none; }
+    #dashboard p { margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="login-section">
+      <h2>Login</h2>
+      <form id="login-form" novalidate>
+        <label for="username">Username or Email</label>
+        <input type="text" id="username" placeholder="Username or Email" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" />
+
+        <button type="submit">Login</button>
+      </form>
+      <div id="login-msg" class="msg"></div>
+    </div>
+
+    <div id="dashboard">
+      <h2>Welcome, <span id="display-name"></span></h2>
+      <p id="token-display" style="word-break:break-all;font-size:0.75rem;color:#666;"></p>
+      <button id="logout-btn">Logout</button>
+      <div id="logout-msg" class="msg"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+
+    const form = document.getElementById('login-form');
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const loginMsg = document.getElementById('login-msg');
+    const dashboard = document.getElementById('dashboard');
+    const loginSection = document.getElementById('login-section');
+
+    function showError(msg) {
+      loginMsg.className = 'msg error';
+      loginMsg.textContent = msg;
+    }
+
+    function showDashboard(username, token) {
+      loginSection.style.display = 'none';
+      dashboard.style.display = 'block';
+      document.getElementById('display-name').textContent = username;
+      document.getElementById('token-display').textContent = 'Token: ' + token;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginMsg.textContent = '';
+
+      const username = usernameEl.value.trim();
+      const password = passwordEl.value.trim();
+
+      usernameEl.classList.remove('error');
+      passwordEl.classList.remove('error');
+
+      let valid = true;
+      if (!username) { usernameEl.classList.add('error'); valid = false; }
+      if (!password) { passwordEl.classList.add('error'); valid = false; }
+      if (!valid) { showError('Please fill in all fields.'); return; }
+
+      try {
+        const res = await fetch(`${API}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || 'Login failed');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        showDashboard(data.username, data.token);
+      } catch (err) {
+        showError('Cannot reach server');
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      await fetch(`${API}/api/auth/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': token },
+      });
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      dashboard.style.display = 'none';
+      loginSection.style.display = 'block';
+    });
+
+    // auto-restore session
+    const savedToken = localStorage.getItem('token');
+    const savedUsername = localStorage.getItem('username');
+    if (savedToken && savedUsername) {
+      showDashboard(savedUsername, savedToken);
+    }
+  </script>
+</body>
+</html>
